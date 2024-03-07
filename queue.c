@@ -204,11 +204,86 @@ void q_reverse(struct list_head *head)
 /* Reverse the nodes of the list k at a time */
 void q_reverseK(struct list_head *head, int k)
 {
-    // https://leetcode.com/problems/reverse-nodes-in-k-group/
+    if (!head || list_empty(head) || k < 2)
+        return;
+
+    int len = q_size(head);
+    for (struct list_head *cur = head->next; cur != head && cur->next != head;
+         cur = cur->next) {
+        struct list_head **reverse_node = &cur->next, *tmp = cur->prev;
+        for (int i = 1; i < k; i++) {
+            if (len >= k)
+                list_move(*reverse_node, tmp);
+        }
+        len -= k;
+    }
 }
 
 /* Sort elements of queue in ascending/descending order */
-void q_sort(struct list_head *head, bool descend) {}
+struct list_head *merge_list(struct list_head *left, struct list_head *right)
+{
+    struct list_head *head = NULL, **ptr = &head;
+
+    for (; left && right; ptr = &(*ptr)->next) {
+        if (strcmp(list_entry(left, element_t, list)->value,
+                   list_entry(right, element_t, list)->value) < 0) {
+            *ptr = left;
+            left = left->next;
+        } else {
+            *ptr = right;
+            right = right->next;
+        }
+    }
+
+    if (left) {
+        *ptr = left;
+    } else {
+        *ptr = right;
+    }
+    return head;
+}
+
+struct list_head *merge_sort(struct list_head *head)
+{
+    if (!head || !head->next)
+        return head;
+    struct list_head *fast, *slow = head;
+
+    for (fast = head->next; fast && fast->next; fast = fast->next->next) {
+        slow = slow->next;
+    }
+
+    struct list_head *left, *right;
+
+    right = slow->next;
+    slow->next = NULL;
+
+    left = merge_sort(head);
+    right = merge_sort(right);
+
+    return merge_list(left, right);
+}
+
+
+void q_sort(struct list_head *head, bool descend)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    head->prev->next = NULL;
+    head->next = merge_sort(head->next);
+
+    struct list_head *cur = head, *n = head->next;
+
+    while (n) {
+        n->prev = cur;
+        cur = n;
+        n = n->next;
+    }
+
+    cur->next = head;
+    head->prev = cur;
+}
 
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
