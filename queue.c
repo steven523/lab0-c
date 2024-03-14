@@ -329,13 +329,66 @@ int q_descend(struct list_head *head)
     }
     q_reverse(head);
     return q_size(head);
-
 }
 
 /* Merge all the queues into one sorted queue, which is in ascending/descending
  * order */
 int q_merge(struct list_head *head, bool descend)
 {
-    // https://leetcode.com/problems/merge-k-sorted-lists/
-    return 0;
+    if (list_empty(head))
+        return 0;
+    if (list_is_singular(head))
+        return list_entry(head->next, queue_contex_t, chain)->size;
+
+    queue_contex_t *first = list_entry(head->next, queue_contex_t, chain);
+    queue_contex_t *pos = NULL;
+
+    struct list_head *tmp = first->q->next;
+    first->q->prev->next = NULL;
+    list_for_each_entry (pos, head, chain) {
+        if (first == pos)
+            continue;
+        pos->q->prev->next = NULL;
+        tmp = merge_list(tmp, pos->q->next);
+        INIT_LIST_HEAD(pos->q);
+    }
+    first->q->next = tmp;
+    struct list_head *cur = first->q, *n = cur->next;
+
+    while (n) {
+        n->prev = cur;
+        cur = n;
+        n = n->next;
+    }
+
+    cur->next = first->q;
+    first->q->prev = cur;
+
+    return q_size(tmp);
+}
+
+// Implement q_shuffle and swap
+void swap(element_t *n1, element_t *n2)
+{
+    char *tmp = n1->value;
+    n1->value = n2->value;
+    n2->value = tmp;
+}
+void q_shuffle(struct list_head *head)
+{
+    if (!head || list_empty(head))
+        return;
+
+    struct list_head *end = head->prev;
+
+    for (int i = q_size(head); i > 0; i--) {
+        int ran = rand() % i;
+        struct list_head *cur = head;
+        for (int j = 0; j <= ran; j++) {
+            cur = cur->next;
+        }
+        swap(list_entry(cur, element_t, list),
+             list_entry(end, element_t, list));
+        end = end->prev;
+    }
 }
