@@ -364,7 +364,7 @@ int q_merge(struct list_head *head, bool descend)
     cur->next = first->q;
     first->q->prev = cur;
 
-    return q_size(tmp);
+    return q_size(first->q);
 }
 
 // Implement q_shuffle and swap
