@@ -1,0 +1,12 @@
+# started on Thu Mar 28 00:28:30 2024
+
+
+ Performance counter stats for './qtest -v 0 -f ./traces/traces_perf_linux_sort/RAND_1000000.cmd' (5 runs):
+
+         7861,2101      cache-misses                                                            ( +-  0.98% )
+       6,6845,0006      branches                                                                ( +-  0.01% )
+      47,4151,1080      instructions                                                            ( +-  0.01% )
+                 7      context-switches                                                        ( +- 14.29% )
+
+            1.1422 +- 0.0137 seconds time elapsed  ( +-  1.20% )
+
